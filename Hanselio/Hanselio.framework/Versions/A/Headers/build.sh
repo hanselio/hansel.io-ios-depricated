@@ -18,16 +18,13 @@ function traverseAndCopy
 {
     for file in "$1"/*;
     do
-    echo traversing
-    echo ${file}
-    if [ -d "${file}" ] ; then
-    if [ ${file: -5} == ".dSYM" ] ; then
-    echo "copying file"
-    cp -Rp ${file} ${ARCHIVE_BASE}${FILE_NAME}
-    else
-    traverseAndCopy "${file}"
-    fi
-    fi
+        if [ -d "${file}" ] ; then
+            if [ ${file: -5} == ".dSYM" ] ; then
+                cp -Rp ${file} ${ARCHIVE_BASE}${FILE_NAME}
+            else
+                traverseAndCopy "${file}"
+            fi
+        fi
     done
 }
 
@@ -118,6 +115,14 @@ function createZip
     pushd $ARCHIVE_BASE
     zip -r "Hansel.zip" .
     popd $ARCHIVE_BASE
+}
+
+function clean
+{
+    pushd $ARCHIVE_BASE
+    [ -e "config.json" ] && rm "config.json"
+    [ -e "crumb.dSYM" ] && rm "crumb.dSYM"
+    [ -e "function-list" ] && rm "function-list"
 }
 
 createDirectory
