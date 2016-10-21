@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "Hansel.io-ios"
-  s.version      = "1.0.6"
+  s.version      = "1.0.7"
   s.summary      = "Live bug fixing of ios app"
   s.description  = "pebbletrace-ios.framework powers developers to fix bugs at runtime"
 
@@ -16,5 +16,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/hanselio/hansel.io-ios.git", :tag => s.version}
   s.preserve_paths = "Hanselio/**/*"
   s.resource_bundles = {'PebbletraceBundle' => ["Hanselio/**/*.der", "Hanselio/**/*.plist"]}
+  s.libraries = 'c++', 'z'
 
 end
