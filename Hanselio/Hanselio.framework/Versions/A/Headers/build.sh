@@ -62,13 +62,24 @@ function getPreProcessorVersion
 
 function getBundleIdentifier
 {
-    cfBundleIdentifier=${PRODUCT_BUNDLE_IDENTIFIER}
-    if [ $cfBundleIdentifier == "" ]; then
-        cfBundleIdentifier=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "${PROJECT_DIR}/${INFOPLIST_FILE}")
-        echo `eval echo $cfBundleIdentifier`
-    else
-        echo $cfBundleIdentifier
-    fi
+    cfBundleIdentifier=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "${PROJECT_DIR}/${INFOPLIST_FILE}")
+    echo `eval echo $cfBundleIdentifier`
+}
+
+function getExpandedBundleIdentifier
+{
+    bundleIdentifier=$(getBundleIdentifier)
+    cfBundleIdentifier=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "${PROJECT_DIR}/${INFOPLIST_FILE}")
+    variableArray=($(echo $cfBundleIdentifier | awk -F'[$()]'  '{j=0; for(i=0;i<=NF;i+=1){print $i;}}'))
+    for i in "${variableArray[@]}"
+    do
+        if [[ $i == "PRODUCT_NAME:rfc1034identifier" ]]; then
+            i="PRODUCT_NAME"
+        fi
+        bundleIdentifier=$bundleIdentifier${!i}
+    done
+
+    echo $bundleIdentifier
 }
 
 function getHanselSDKVersion
@@ -97,7 +108,7 @@ function createJSON
     local buildNumber=$(getBuildNumber)
     local appVersion=$(getVersionNumber)
     local preProcessorVersion=$(getPreProcessorVersion)
-    local bundleIdentifier=$(getBundleIdentifier)
+    local bundleIdentifier=$(getExpandedBundleIdentifier)
     local hanselSDKVersion=$(getHanselSDKVersion)
     local iosMinSDKVersion=$(getiosMinSDKVersion)
     local iosTargetSDKVersion=$(getiosTargetSDKVersion)
@@ -113,6 +124,7 @@ function createFunctionList
 function createZip
 {
     pushd $ARCHIVE_BASE
+    rm -rf "crumb.dSYM"
     zip -r "Hansel.zip" .
     popd $ARCHIVE_BASE
 }
@@ -120,8 +132,8 @@ function createZip
 function clean
 {
     pushd $ARCHIVE_BASE
-    [ -e "config.json" ] && rm "config.json"
     [ -e "crumb.dSYM" ] && rm "crumb.dSYM"
+    [ -e "config.json" ] && rm "config.json"
     [ -e "function-list" ] && rm "function-list"
 }
 
@@ -131,3 +143,4 @@ echo ${DWARF_DSYM_FOLDER_PATH}
 traverseAndCopy "${DWARF_DSYM_FOLDER_PATH}"
 createFunctionList
 createZip
+clean
