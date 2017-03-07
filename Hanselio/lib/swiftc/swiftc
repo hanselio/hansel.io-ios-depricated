@@ -1,0 +1,92 @@
+#!/bin/bash
+
+unset arch module_name is_debug is_hansel_enabled
+is_hansel_enabled="true"
+extract_args() {
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+    case $key in
+        -target)
+            arch="$2"
+            shift # past argument
+            ;;
+        -module-name)
+            module_name="$2"
+            shift #past argument
+            ;;
+        -DHANSEL_ENABLED=NO)
+            is_hansel_enabled="false"
+            shift #past argument
+            ;;
+        -DHANSEL_ENABLED=YES)
+            is_hansel_enabled="true"
+            shift #past argument
+            ;;
+        *)
+            # unknown option
+            ;;
+    esac
+    shift # past argument or value
+    done
+}
+
+extract_args "$@"
+swift_path=`/usr/bin/xcrun -f swiftc`
+
+clean()
+{
+    `Pods/Hansel.io-ios/Hanselio/lib/swiftc/outc`
+}
+
+hanselDirectory="Hansel"
+ARCHIVE_BASE="${HOME}/Desktop/${hanselDirectory}/"
+
+startAfresh()
+{
+    [ -e "$ARCHIVE_BASE" ] && rm -rf $ARCHIVE_BASE
+    mkdir -p $ARCHIVE_BASE
+}
+
+if [ "$is_hansel_enabled" == "true" ]; then
+
+    export DYLD_FORCE_FLAT_NAMESPACE=1
+    export DYLD_INSERT_LIBRARIES="Pods/Hansel.io-ios/Hanselio/lib/dylib/libHansel.dylib"
+
+    startAfresh
+    current_time=$(date +'%s')
+    
+    `Pods/Hansel.io-ios/Hanselio/lib/swiftc/out "$current_time" "$module_name" "$arch"`
+
+    originalParams=("$@")
+
+    unset arrFiles
+
+    swiftFiles=""
+    for i in "$@"
+    do
+        [ -f "$i" ] || continue;
+    
+        [[ $i =~ \.swift$ ]] && 
+        {
+            swiftFiles="$swiftFiles \"$i\""
+        }
+    done
+
+    echo "$swiftFiles"
+
+    `Pods/Hansel.io-ios/Hanselio/lib/dylib/banyantree "$swiftFiles"`
+
+    "$swift_path" "$@"
+
+    [ -e "function-list-swift" ] && cp function-list-swift $ARCHIVE_BASE
+    [ -e "comprehensive-function-list-swift" ] && cp comprehensive-function-list-swift $ARCHIVE_BASE
+    [ -e "comprehensive-function-list-swift" ] && rm comprehensive-function-list-swift
+    [ -e "function-list-swift" ] && rm function-list-swift
+
+    clean
+fi
+
+if [ "$is_hansel_enabled" == "false" ]; then
+    "$swift_path" "$@"
+fi

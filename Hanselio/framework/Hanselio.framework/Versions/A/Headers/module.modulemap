@@ -1,0 +1,6 @@
+module Hanselio
+{
+    header "HanselCrashReporter.h"
+    header "HanselSwiftTypeWrapper.h"
+    export *
+}

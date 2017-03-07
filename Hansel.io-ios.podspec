@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "Hansel.io-ios"
-  s.version      = "1.0.8"
+  s.version      = "2.0.2"
   s.summary      = "Live bug fixing of ios app"
   s.description  = "pebbletrace-ios.framework powers developers to fix bugs at runtime"
 
@@ -10,12 +10,11 @@ Pod::Spec.new do |s|
   s.authors      = {"hansel.io" => "hi@hansel.io"}
   s.documentation_url = "http://hansel.io/"
   s.requires_arc = true
-  s.ios.vendored_frameworks = 'Hanselio/Hanselio.framework'
+  s.ios.vendored_frameworks = 'Hanselio/framework/Hanselio.framework'
   s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '$(inherited)' }
   s.weak_framework = 'JavaScriptCore'
   s.source       = { :git => "https://github.com/hanselio/hansel.io-ios.git", :tag => s.version}
   s.preserve_paths = "Hanselio/**/*"
-  s.resource_bundles = {'PebbletraceBundle' => ["Hanselio/**/*.der", "Hanselio/**/*.plist"]}
+  s.resource_bundles = {'PebbletraceBundle' => ["Hanselio/**/*.der", "Hanselio/**/PebbletraceInfo.plist"]}
   s.libraries = 'c++', 'z'
-
 end
