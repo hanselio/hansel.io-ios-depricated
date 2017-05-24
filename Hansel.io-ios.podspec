@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "Hansel.io-ios"
-  s.version      = "2.0.3"
+  s.version      = "3.0.1"
   s.summary      = "Live bug fixing of ios app"
   s.description  = "pebbletrace-ios.framework powers developers to fix bugs at runtime"
 

@@ -7,6 +7,6 @@
 	<key>ios_min_sdk_version</key>
 	<integer>7</integer>
 	<key>sdk_version</key>
-	<string>ios-2.0.2</string>
+	<string>ios-3.0.1</string>
 </dict>
 </plist>
